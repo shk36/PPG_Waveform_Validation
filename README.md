@@ -5,12 +5,9 @@ A Python-based tool for detecting and excluding incorrect or malformed photoplet
 ### Table of Contents
 [Overview](#overview)
 
-
 [Features](#features)
 
-
 [Installation](#installation)
-
 
 [Usage](#usage)
 
@@ -26,17 +23,17 @@ Easy integration with existing PPG processing workflows
 Installation
 To install the necessary dependencies, clone this repository and install required packages:
 
-'''bash
+```bash
 코드 복사
 git clone https://github.com/yourusername/PPG-Waveform-Validation.git
 cd PPG-Waveform-Validation
 pip install -r requirements.txt
-'''
+```
 
 ### Usage
 Here's an example of how to use the waveform validation code:
 
-'''python
+```python
 코드 복사
 from ppg_waveform_validation import validate_waveform
 
@@ -48,7 +45,7 @@ valid_waveforms = validate_waveform(ppg_data)
 
 # Process only valid waveforms
 process(valid_waveforms)
-'''
+```
 
 ### Parameters
 Details on key parameters for validate_waveform:
