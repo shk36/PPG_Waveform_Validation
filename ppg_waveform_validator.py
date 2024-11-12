@@ -55,7 +55,7 @@ class PPGWaveformValidator:
         return proportion
 
 
-    def detect_abnormal_waveform(self, data):
+    def detect_masimo_waveform(self, data):
         """
         Detect if a PPG waveform is abnormal based on the gradient properties.
 
