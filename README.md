@@ -1,6 +1,6 @@
 # PPG_Waveform_Validation
 
-A Python tool for detecting and excluding incorrectly formed photoplethysmogram (PPG) waveforms, particularly those suspected to originate from Masimo Root devices. This repository provides an algorithm to identify PPG waveforms with abnormal gradient patterns, allowing researchers and practitioners to filter out unreliable data for improved signal quality.
+A Python tool for detecting and excluding incorrectly formed photoplethysmogram (PPG) waveforms, particularly those suspected to originate from M devices. This repository provides an algorithm to identify PPG waveforms with abnormal gradient patterns, allowing researchers and practitioners to filter out unreliable data for improved signal quality.
 
 ### Table of Contents
 - [Overview](#overview)<br>
@@ -13,7 +13,7 @@ A Python tool for detecting and excluding incorrectly formed photoplethysmogram 
 
 
 ### Overview
-The code in this repository addresses the issue of malformed or noisy PPG waveforms, especially those possibly originating from Masimo Root devices. By analyzing the gradient patterns of each waveform, the tool identifies abnormal waveforms that may contain excessive noise or irregularities, which could compromise data integrity in PPG analysis workflows.
+The code in this repository addresses the issue of malformed or noisy PPG waveforms, especially those possibly originating from M devices. By analyzing the gradient patterns of each waveform, the tool identifies abnormal waveforms that may contain excessive noise or irregularities, which could compromise data integrity in PPG analysis workflows.
 
 
 ### Features
@@ -47,11 +47,11 @@ validator = PPGWaveformValidator(
 ```
 
 **2. Validate a VitalFile**<br>
-Use the *detect_masimo_vitalfile* function to validate all segments within a vitalfile based on a threshold for abnormal segments.
+Use the *detect_mdevice_vitalfile* function to validate all segments within a vitalfile based on a threshold for abnormal segments.
 
 ```python
 filename = 'sample.vital'
-result = validator.detect_masimo_vitalfile(filename)
+result = validator.detect_mdevice_vitalfile(filename)
 
 if result == 'invalid':
     print(f"Vitalfile {filename} is invalid waveform data.")
@@ -80,7 +80,7 @@ else:
 - Peaks in the PPG signal are identified using *arr.detect_peaks(data, hz)*, and segments (beats) between peaks are extracted.
 - For each beat, the gradient is calculated. Using *check_gradient*, the code calculates the proportion of gradient segments that meet an increasing threshold.
 - The code then calculates the proportion of beats where this increasing pattern exceeds 0.7. If at least 70% of beats meet this criterion, the waveform is flagged as abnormal.
-- The result (True for abnormal and False for normal) can be used to filter out suspected Masimo-origin waveforms.
+- The result (True for abnormal and False for normal) can be used to filter out suspected M Device-origin waveforms.
 
   
 ### Detected Abnormal PPG Waveform
