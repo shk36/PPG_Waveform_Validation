@@ -75,7 +75,7 @@ class PPGWaveformValidator:
 
     def detect_abnormal_seg(self, data):
         """
-        Detects abnormal Masimo waveform segments in PPG data based on gradient properties.
+        Detects abnormal M device waveform segments in PPG data based on gradient properties.
 
         Parameters:
         - data (np.array): Array representing a single PPG segment.
@@ -125,9 +125,9 @@ class PPGWaveformValidator:
         return ratio >= self.abnormality_threshold
 
     
-    def detect_masimo_vitalfile(self, filename, threshold=0.9):
+    def detect_mdevice_vitalfile(self, filename, threshold=0.9):
         """
-        Analyzes segments within a vitalfile to determine if they exhibit abnormal Masimo waveforms.
+        Analyzes segments within a vitalfile to determine if they exhibit abnormal M device waveforms.
 
         Parameters:
         - filename (str): Name of the vitalfile.
@@ -139,7 +139,7 @@ class PPGWaveformValidator:
         vals = vitaldb.VitalFile(self.vital_path + filename, track_names = self.trkname)
         vals = vals.to_pandas(track_names = self.trkname , interval = 1/self.hz, return_datetime = True)
 
-        masimo_count, normal_count = 0, 0
+        m_count, normal_count = 0, 0
 
         # Segment the data into chunks of specified duration (nsec)
         for idx in range(0, len(vals)-int(self.nsec*self.hz), int(self.nsec*self.hz)): 
@@ -147,26 +147,26 @@ class PPGWaveformValidator:
             ppg_seg = ppg_seg.astype(float) 
             ppg_seg = self.cheby2_filter(arr.interp_undefined(ppg_seg))
 
-            masimo_check = self.detect_abnormal_seg(ppg_seg)
+            m_check = self.detect_abnormal_seg(ppg_seg)
             
-            if masimo_check == False:
+            if m_check == False:
                 normal_count += 1
-            elif masimo_check == True:
-                masimo_count += 1
+            elif m_check == True:
+                m_count += 1
             
-        total_valid_seg = masimo_count + normal_count
+        total_valid_seg = m_count + normal_count
 
         if total_valid_seg == 0:
             return 'invalid'
         
-        masimo_seg_ratio = masimo_count / total_valid_seg
+        m_seg_ratio = m_count / total_valid_seg
 
-        print('\n=== Masimo Vitalfile Detection Results ===')
+        print('\n=== M Device Vitalfile Detection Results ===')
         print(f'Total valid segment count: {total_valid_seg}')
         print(f'Normal segment count: {normal_count}')
-        print(f'Masimo abnormal segment count: {masimo_count}')
-        print(f'Masimo abnormal segment ratio: {masimo_seg_ratio}')
+        print(f'M-Device-origin abnormal segment count: {m_count}')
+        print(f'M-Device-origin abnormal segment ratio: {m_seg_ratio}')
 
-        return masimo_seg_ratio >= threshold
+        return m_seg_ratio >= threshold
             
 
