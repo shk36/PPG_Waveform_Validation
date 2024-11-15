@@ -26,6 +26,25 @@ class PPGWaveformValidator:
         self.abnormality_threshold = abnormality_threshold
 
 
+    def cheby2_filter(self, data):
+        """
+        Applies a Chebyshev Type II bandpass filter and moving average to smooth the PPG data.
+
+        Parameters:
+        - data (np.array): Scaled PPG data.
+
+        Returns:
+        - np.array: Filtered PPG data.
+        """
+        b, a = signal.cheby2(4, 20, [0.5, 12], 'bandpass', fs=self.hz) # 4th order filter, 20dB attenuation, 0.5-12Hz bandpass
+        ppg_cb2 = filtfilt(b, a, data)
+
+        win = round(self.hz * 50/1000) # Define the window size based on the sampling rate
+        B = 1 / win * np.ones(win)
+
+        return filtfilt(B, 1, ppg_cb2)
+    
+
     def check_gradient(self, gradient):
         """
         Computes the proportion of continuously increasing segments in a beat's gradient.
@@ -54,7 +73,7 @@ class PPGWaveformValidator:
         return sum(increasing_lengths) / len(gradient)
 
 
-    def detect_masimo_waveform(self, data):
+    def detect_abnormal_seg(self, data):
         """
         Detects abnormal Masimo waveform segments in PPG data based on gradient properties.
 
@@ -105,26 +124,7 @@ class PPGWaveformValidator:
 
         return ratio >= self.abnormality_threshold
 
-
-    def cheby2_filter(self, data):
-        """
-        Applies a Chebyshev Type II bandpass filter and moving average to smooth the PPG data.
-
-        Parameters:
-        - data (np.array): Scaled PPG data.
-
-        Returns:
-        - np.array: Filtered PPG data.
-        """
-        b, a = signal.cheby2(4, 20, [0.5, 12], 'bandpass', fs=self.hz) # 4th order filter, 20dB attenuation, 0.5-12Hz bandpass
-        ppg_cb2 = filtfilt(b, a, data)
-
-        win = round(self.hz * 50/1000) # Define the window size based on the sampling rate
-        B = 1 / win * np.ones(win)
-
-        return filtfilt(B, 1, ppg_cb2)
     
-
     def detect_masimo_vitalfile(self, filename, threshold=0.9):
         """
         Analyzes segments within a vitalfile to determine if they exhibit abnormal Masimo waveforms.
@@ -144,11 +144,10 @@ class PPGWaveformValidator:
         # Segment the data into chunks of specified duration (nsec)
         for idx in range(0, len(vals)-int(self.nsec*self.hz), int(self.nsec*self.hz)): 
             ppg_seg = vals[idx:idx + int(self.nsec*self.hz)][self.trkname].values 
-            
             ppg_seg = ppg_seg.astype(float) 
             ppg_seg = self.cheby2_filter(arr.interp_undefined(ppg_seg))
 
-            masimo_check = self.detect_masimo_waveform(ppg_seg)
+            masimo_check = self.detect_abnormal_seg(ppg_seg)
             
             if masimo_check == False:
                 normal_count += 1
