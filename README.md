@@ -1,12 +1,16 @@
-## PPG_Waveform_Validation
+# PPG_Waveform_Validation
 
 A Python tool for detecting and excluding incorrectly formed photoplethysmogram (PPG) waveforms, particularly those suspected to originate from Masimo Root devices. This repository provides an algorithm to identify PPG waveforms with abnormal gradient patterns, allowing researchers and practitioners to filter out unreliable data for improved signal quality.
 
 ### Table of Contents
 [Overview](#overview)
+
 [Features](#features)
+
 [Installation](#installation)
+
 [Usage](#usage)
+
 [Code Explanation](#codeexplanation)
 
 
@@ -14,9 +18,10 @@ A Python tool for detecting and excluding incorrectly formed photoplethysmogram 
 The code in this repository addresses the issue of malformed or noisy PPG waveforms, especially those possibly originating from Masimo Root devices. By analyzing the gradient patterns of each waveform, the tool identifies abnormal waveforms that may contain excessive noise or irregularities, which could compromise data integrity in PPG analysis workflows.
 
 ### Features
-- Automated detection of malformed PPG waveforms
-- Customizable thresholds and detection parameters
-- Easy integration with existing PPG processing workflows
+- **Bandpass Filtering**: Applies a Chebyshev Type II filter and moving average to smooth and clean PPG signals.
+- **Gradient Analysis**: Calculates the proportion of continuously increasing gradient segments within each beat.
+- **Abnormality Detection**: Flags PPG segments as abnormal if a specified threshold for abnormal gradient properties is met.
+- **File-Based Analysis**: Processes PPG data from vital files using customizable thresholds for beat and waveform abnormality.
 
 ### Installation
 To install the necessary dependencies, clone this repository and install the required packages:
@@ -24,26 +29,43 @@ To install the necessary dependencies, clone this repository and install the req
 ```bash
 git clone https://github.com/yourusername/PPG-Waveform-Validation.git
 cd PPG-Waveform-Validation
-pip install -r requirements.txt
+pip install numpy scipy vitaldb
 ```
 
 ### Usage
-Here's an example of how to use the detect_abnormal_waveform function:
+1. Initialize the Validator
+   Create an instance of PPGWaveformValidator by specifying the vital file path, segment length, sampling rate, and thresholds.
 
 ```python
-from ppg_waveform_validation import detect_abnormal_waveform
+from ppg_waveform_validator import PPGWaveformValidator
 
-# Load your PPG data
-ppg_data = load_ppg_data("your_data_file.csv")
-
-# Detect abnormal waveforms
-is_abnormal = detect_abnormal_waveform(ppg_data, hz=100)
-
-if is_abnormal:
-    print("Abnormal waveform detected.")
-else:
-    print("Waveform appears normal.")
+validator = PPGWaveformValidator(
+    vital_path='/path/to/vital/files',
+    nsec=10.24,  # Segment length in seconds
+    hz=100,  # Sampling rate in Hz
+    trkname='Intellivue/PLETH'  # Track name for PPG data
+)
 ```
+
+2. Validate a VitalFile
+   Use the detect_masimo_vitalfile function to validate all segments within a vitalfile based on a threshold for abnormal segments.
+
+```python
+filename = 'sample.vital'
+result = validator.detect_masimo_vitalfile(filename)
+print(f"Vital file {filename} is {'abnormal' if result else 'normal'}")
+```
+
+### Parameters
+- **vital_path (str)**: Path to the directory containing vital files.
+- **nsec (float)**: Length of each segment in seconds.
+- **hz (int)**: Sampling rate of the PPG signal (default 100).
+- **trkname (str)**: Track name in the vital file (default is 'Intellivue/PLETH').
+- **beat_prop_threshold (float)**: Minimum proportion of gradient-increasing segments in a beat to consider it abnormal.
+- **abnormality_threshold (float)**: Minimum proportion of beats in a segment that must be abnormal to flag it as an abnormal waveform.
+
+
+
 
 ### Code Explanation
 ### Key Components
