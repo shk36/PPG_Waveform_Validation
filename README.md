@@ -80,7 +80,7 @@ else:
 - Peaks in the PPG signal are identified using *arr.detect_peaks(data, hz)*, and segments (beats) between peaks are extracted.
 - For each beat, the gradient is calculated. Using *check_gradient*, the code calculates the proportion of gradient segments that meet an increasing threshold.
 - The code then calculates the proportion of beats where this increasing pattern exceeds 0.7. If at least 70% of beats meet this criterion, the waveform is flagged as abnormal.
-- The result (True for abnormal and False for normal) can be used to filter out suspected M Device-origin waveforms.
+- The result (True for abnormal and False for normal) can be used to filter out suspected M-device-origin waveforms.
 
   
 ### Detected Abnormal PPG Waveform
